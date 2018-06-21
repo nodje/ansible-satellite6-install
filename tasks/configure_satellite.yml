@@ -14,14 +14,14 @@
 
 #Copy the manifest
 - name: "Configure | copy manifest"
-  become: "yes"
+  become: yes
   copy:
     src: "{{ satellite_deployment_manifest_path }}"
     dest: "{{ satellite_deployment_manifest_dest_path }}"
   when: "{{ not satellite_deployment_remote_manifest }}"
 
 - name: "Configure | copy manifest from remote"
-  become: "yes"
+  become: yes
   get_url:
     url: "{{ satellite_deployment_manifest_path }}"
     dest: "{{ satellite_deployment_manifest_dest_path }}"
@@ -29,21 +29,21 @@
 
 #Upload the manifest to the satellite
 - name: "Configure | upload the manifest"
-  become: "yes"
+  become: yes
   shell: "hammer subscription upload --file
     {{ satellite_deployment_manifest_dest_path }} --organization
     {{ satellite_deployment_organization }}"
 
 #Enabling repos on satellite
 - name: "Configure | enable repos"
-  become: "yes"
+  become: yes
   shell: "hammer repository-set '{{ item.state }}' --organization
     '{{ satellite_deployment_organization }}'
     --product '{{ item.product_name }}' --name '{{ item.name_repo }}'
     {% if item.rel is defined %} --releasever '{{ item.rel }}' {% endif %}
     --basearch '{{ item.architecture}}'"
   with_items: "{{ satellite_deployment_repositories }}"
-  ignore_errors: "yes"
+  ignore_errors: yes
   tags:
     - "satellite_deployment_repositories"
 

@@ -1,26 +1,26 @@
 ---
-- name: "Include firewall.yml"
+- name: Include firewall.yml
   include_vars: "vars/firewall.yml"
   tags:
     - "firewall"
 
-#Install firewalld and enable it
-- name: "Install firewalld"
-  become: "yes"
+  #Install firewalld and enable it
+- name: Install firewalld
+  become: yes
   yum:
     name: "firewalld"
     state: "present"
-  ignore_errors: "yes"
+  ignore_errors: yes
   tags:
     - "firewall"
 
-- name: "Set hostname with hostnamectl"
+- name: Set hostname with hostnamectl
   hostname:
     name: "{{ satellite_deployment_hostname_full }}"
   tags:
     - "firewall"
 
-- name: "Update /etc/hosts wiht satellite hostname"
+- name: Update /etc/hosts wiht satellite hostname
   lineinfile:
     line: "{{ satellite_deployment_ip_address }}
       {{ satellite_deployment_hostname_full }}
@@ -29,25 +29,24 @@
   tags:
     - "firewall"
 
-- name: "Enable Firewalld"
-  become: "yes"
+- name: Enable Firewalld
+  become: yes
   service:
-    enabled: "yes"
+    enabled: yes
     name: "firewalld"
     state: "started"
   tags:
     - "firewall"
 
 #Opening firewall ports
-- name: "Firewall and hostname | Opening Firewalld ports"
-  become: "yes"
+- name: Firewall and hostname | Opening Firewalld ports
+  become: yes
   firewalld:
-    permanent: "yes"
-    immediate: "yes"
+    permanent: yes
+    immediate: yes
     port: "{{ item }}"
     state: "enabled"
-  with_items: "{{ satellite_deployment_fw_ports +
-    satellite_deployment_plugin_ports }}"
-  ignore_errors: "yes"
+  with_items: "{{ satellite_deployment_fw_ports + satellite_deployment_plugin_ports }}"
+  ignore_errors: yes
   tags:
     - "firewall"

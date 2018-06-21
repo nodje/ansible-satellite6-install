@@ -13,7 +13,7 @@
 
 - name: Check if Satellite is subscribed
   shell:
-    /usr/sbin/subscription-manager list --consumed --matches='*Satellite*' | awk '/Pool ID/ {print $3}'
+    /usr/sbin/subscription-manager list --consumed --matches='Red Hat Satellite' | awk '/Pool ID/ {print $3}'
   tags:
     - "rhn"
     - "skip_ansible_lint" # ANSIBLE0012
@@ -21,13 +21,13 @@
 
   #Get the pool id for the pool that contains the Satellite product
 - name: RHN | get RHN pool id
-  shell: >
-    /usr/sbin/subscription-manager list --all --available --matches='Red Hat Satellite'
+  shell: |
+    /usr/sbin/subscription-manager list --all --available --matches='Red Hat Satellite' \
       | awk '/Pool ID/ {print $3}' | head -1
   tags:
     - "rhn"
   register: "satellite_deployment_pool_id_command"
-  ignore_errors: "yes"
+  ignore_errors: yes
   when: "{{ satellite_deployment_pool_id is undefined }}"
 
 - name: Set pool_id fact
@@ -42,16 +42,19 @@
   tags:
     - "rhn"
     - "skip_ansible_lint" # ANSIBLE0012
-  ignore_errors: "yes"
+  ignore_errors: yes
+  register: subscription_name
   when: "{{ satellite_deployment_subscribed.stdout == '' }}"
-
+- name: display used subscription
+  debug:
+    msg: "{{ subscription_name }}"
   #Enabling the repos
 - name: RHN | enabling the right repos
-  command: >
-    /usr/sbin/subscription-manager repos
-        --disable '*'
-        --enable rhel-7-server-satellite-{{ satellite_deployment_version }}-rpms
-        --enable rhel-7-server-rpms
+  command: |
+    /usr/sbin/subscription-manager repos \
+        --disable '*' \
+        --enable rhel-7-server-satellite-{{ satellite_deployment_version }}-rpms \
+        --enable rhel-7-server-rpms \
         --enable rhel-server-rhscl-7-rpms
   tags:
     - "rhn"
