@@ -9,6 +9,7 @@ satellite_deployment_organization: "ORG"
 satellite_deployment_location: "BRNO"
 
 # network
+satellite_mask_firewalld: no
 satellite_deployment_ip_address: "10.35.184.33"
 satellite_deployment_network_address: "10.35.184.32"
 satellite_deployment_net_prefix: "27"

@@ -20,7 +20,7 @@
   tags:
     - "firewall"
 
-- name: Update /etc/hosts wiht satellite hostname
+- name: Update /etc/hosts with satellite hostname
   lineinfile:
     line: "{{ satellite_deployment_ip_address }}
       {{ satellite_deployment_hostname_full }}
@@ -29,12 +29,14 @@
   tags:
     - "firewall"
 
-- name: Enable Firewalld
+- name: Enable Firewalld (and unmask if necessary)
   become: yes
   service:
     enabled: yes
-    name: "firewalld"
-    state: "started"
+    masked: no
+    name: firewalld
+    state: started
+  when: not satellite_mask_firewalld
   tags:
     - "firewall"
 
@@ -48,5 +50,24 @@
     state: "enabled"
   with_items: "{{ satellite_deployment_fw_ports + satellite_deployment_plugin_ports }}"
   ignore_errors: yes
+  tags:
+    - "firewall"
+
+- name: stop Firewalld if necessary
+  become: yes
+  systemd:
+    state: stopped
+    name: firewalld
+  when: satellite_mask_firewalld
+  tags:
+    - "firewall"
+
+- name: mask Firewalld if necessary
+  become: yes
+  systemd:
+    enabled: no
+    masked: yes
+    name: firewalld.service
+  when: satellite_mask_firewalld
   tags:
     - "firewall"
